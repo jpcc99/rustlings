@@ -23,8 +23,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
-
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
 // You need to create an implementation for a tuple of three integers,
@@ -38,6 +36,13 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (red, green, blue) = tuple;
+        let color = Color {
+            red: u8::try_from(red).map_err(|_| IntoColorError::IntConversion)?,
+            green: u8::try_from(green).map_err(|_| IntoColorError::IntConversion)?,
+            blue: u8::try_from(blue).map_err(|_| IntoColorError::IntConversion)?,
+        };
+        Ok(color)
     }
 }
 
@@ -45,6 +50,20 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        let mut colors = [0u8; 3];
+        for color in arr.iter().enumerate() {
+            let (i, i16_color) = color;
+            if let Ok(color) = u8::try_from(*i16_color) {
+                colors[i] = color;
+            } else {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+        Ok(Color {
+            red: colors[0],
+            green: colors[1],
+            blue: colors[2],
+        })
     }
 }
 
@@ -52,6 +71,23 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+        let mut colors = [0u8; 3];
+        for color in slice.iter().enumerate() {
+            let (i, i16_color) = color;
+            if let Ok(color) = u8::try_from(*i16_color) {
+                colors[i] = color;
+            } else {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+        Ok(Color {
+            red: colors[0],
+            green: colors[1],
+            blue: colors[2],
+        })
     }
 }
 
